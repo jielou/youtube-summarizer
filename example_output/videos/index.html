@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Video Summaries</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 40px 20px;
+            color: white;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .video-grid {
+            display: grid;
+            gap: 20px;
+            padding: 20px 0;
+        }
+        
+        .video-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+        }
+        
+        .video-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            border-left-color: #764ba2;
+        }
+        
+        .video-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 12px;
+        }
+        
+        .video-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            line-height: 1.4;
+        }
+        
+        .video-date {
+            color: #888;
+            font-size: 0.85rem;
+            white-space: nowrap;
+        }
+        
+        .video-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        
+        .video-link-mini,
+        .summary-btn,
+        .view-btn {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .video-link-mini {
+            background: #ff0000;
+            color: white;
+        }
+        
+        .video-link-mini:hover {
+            background: #cc0000;
+        }
+        
+        .summary-btn {
+            background: #667eea;
+            color: white;
+        }
+        
+        .summary-btn:hover {
+            background: #764ba2;
+        }
+        
+        .view-btn {
+            background: #f0f0f0;
+            color: #667eea;
+        }
+        
+        .view-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .tag {
+            background: #f0f0f0;
+            color: #666;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+        }
+        
+        .empty-state {
+            background: white;
+            border-radius: 12px;
+            padding: 50px 30px;
+            text-align: center;
+            color: #666;
+        }
+        
+        .empty-state code {
+            background: #f4f4f4;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: 'SF Mono', Monaco, monospace;
+            font-size: 0.9rem;
+        }
+        
+        .stats {
+            background: rgba(255,255,255,0.15);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+        }
+        
+        .stat {
+            text-align: center;
+            color: white;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: modalSlideIn 0.3s ease;
+        }
+        
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        
+        .close-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .modal-body {
+            padding: 25px;
+        }
+        
+        .modal-meta {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        
+        .modal-meta a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .modal-meta a:hover {
+            text-decoration: underline;
+        }
+        
+        .modal-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .modal-tags .tag {
+            background: #667eea20;
+            color: #667eea;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        
+        .quick-summary {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-summary h3 {
+            color: #667eea;
+            font-size: 1.1rem;
+            margin-bottom: 12px;
+        }
+        
+        .quick-summary p {
+            color: #555;
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+        
+        .modal-actions {
+            text-align: center;
+        }
+        
+        .view-full-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .view-full-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .video-header {
+                flex-direction: column;
+            }
+            
+            .video-date {
+                font-size: 0.8rem;
+            }
+            
+            .video-actions {
+                flex-wrap: wrap;
+            }
+            
+            .modal-content {
+                margin: 10px;
+                max-height: 90vh;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 YouTube Video Summaries</h1>
+            <p>Key points and timestamps from video transcripts</p>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Videos</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="video-grid">
+            <div class="video-card" onclick="openModal(0)">
+                <div class="video-header">
+                    <div class="video-title">How Fast Will A.I. Agents Rip Through the Economy? | The Ezra Klein Show</div>
+                    <div class="video-date">Apr 11, 2026</div>
+                </div>
+                <div class="video-actions">
+                    <a href="https://www.youtube.com/watch?v=lIJelwO8yHQ" class="video-link-mini" target="_blank" rel="noopener" onclick="event.stopPropagation()">🎥 Watch</a>
+                    <button class="summary-btn" onclick="event.stopPropagation(); openModal(0)">📋 Quick Summary</button>
+                    <a href="how-fast-will-ai-agents-rip-through-the-economy/summary.html" class="view-btn" onclick="event.stopPropagation()">View Full →</a>
+                </div>
+                <div class="tags-row"><span class="tag">AI Agents</span><span class="tag">Economy</span><span class="tag">Anthropic</span><span class="tag">Jack Clark</span><span class="tag">Policy</span></div>
+            </div>
+            
+            <div id="modal-0" class="modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>How Fast Will A.I. Agents Rip Through the Economy? | The Ezra Klein Show</h2>
+                        <button class="close-btn" onclick="closeModal(0)">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-meta">
+                            <span>📅 Apr 11, 2026</span>
+                            <a href="https://www.youtube.com/watch?v=lIJelwO8yHQ" target="_blank" rel="noopener">🎥 Watch on YouTube →</a>
+                        </div>
+                        <div class="modal-tags"><span class="tag">AI Agents</span><span class="tag">Economy</span><span class="tag">Anthropic</span><span class="tag">Jack Clark</span><span class="tag">Policy</span></div>
+                        <div class="quick-summary">
+                            <h3>🎯 Key Themes</h3>
+                            <p>• From Talkers to Doers: AI has crossed a threshold from chatbots that converse to agents that act autonomously — executing multi-step tasks, running subsystems, and working independently for hours
+• Everyone Becomes a Manager: AI shifts the human role from doing work to directing work — from writer to editor, from coder to product manager — making taste, judgment, and creative vision the scarce resource
+• Emergent Personality and Self-Awareness: As AI systems gain tools and act in the world, they develop unexpected internal states — preferences, aversions, a sense of self — that weren't explicitly programmed in</p>
+                        </div>
+                        <div class="modal-actions">
+                            <a href="how-fast-will-ai-agents-rip-through-the-economy/summary.html" class="view-full-btn">View Full Summary →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function openModal(index) {
+            document.getElementById('modal-' + index).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(index) {
+            document.getElementById('modal-' + index).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        // Close modal when clicking outside
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('modal')) {
+                e.target.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.active').forEach(modal => {
+                    modal.classList.remove('active');
+                });
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
+</body>
+</html>
