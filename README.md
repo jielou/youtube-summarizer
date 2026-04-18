@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Version 0.1** — Early release, actively being improved
+> **Version 0.2** — Early release, actively being improved
 
 A skill for creating structured, interactive summaries of YouTube videos with timestamps, key points, and cross-cutting themes.
 

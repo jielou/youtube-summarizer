@@ -58,6 +58,14 @@ Edit `./videos/<slug>/summary.json` and fill in:
    - Brief summary (2-3 sentences)
    - 3-5 key points with timestamps
 
+**For videos > 1 hour:** Verify your sections span the entire duration:
+```bash
+# Check section timestamp coverage (should span from ~00:00 to near video end)
+grep '"time":' videos/<slug>/summary.json | head -5
+grep '"time":' videos/<slug>/summary.json | tail -5
+```
+Ensure first section is near 00:00 and last section is near the video's end time.
+
 ### Step 4: Generate HTML Summary
 
 After completing the summary.json, generate the HTML:
@@ -310,6 +318,37 @@ python3 youtube-summarizer/scripts/generate_html.py --input videos/<slug>/summar
 **Note:** This command also updates the index.html automatically.
 
 ## Tips for Creating Good Summaries
+
+### Handling Long Videos (Critical)
+
+For videos longer than 1 hour, **timestamp accuracy is critical**. The transcript file may have 10,000+ lines, and content from different parts of the video can easily be misattributed to wrong timestamps.
+
+**ALWAYS verify timestamp distribution:**
+
+1. **Check the video duration** in `summary.json` (e.g., `"duration": "2:28:26"`)
+
+2. **Sample the transcript at multiple points** to understand the timeline:
+   ```bash
+   # Check start, middle, and end timestamps
+   head -20 transcript.md                    # See start timestamps
+   sed -n '5000,5020p' transcript.md         # Check middle (~1 hour in)
+   tail -20 transcript.md                    # See end timestamps
+   ```
+
+3. **Map content to correct timestamps** - When reading sections from different transcript locations, verify the actual timestamp in the file:
+   - Line 1000 might be 00:10:00
+   - Line 5000 might be 00:50:00  
+   - Line 10000 might be 01:45:00
+
+4. **Review step - Verify timestamp coverage:**
+   - Your sections should span the ENTIRE video duration
+   - First section: near 00:00
+   - Last section: near end of video (e.g., 02:20:00 for a 2:28:26 video)
+   - Check for large gaps between section timestamps
+
+5. **Common mistake to avoid:**
+   - ❌ Wrong: All sections mapped to first 60 minutes of a 2.5 hour video
+   - ✅ Correct: Sections distributed across all 2.5 hours
 
 ### Identifying Sections
 
