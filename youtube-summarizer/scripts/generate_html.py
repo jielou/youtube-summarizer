@@ -24,29 +24,39 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} - Video Summary</title>
     <style>
-        * {{
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {{
+            --page-bg: #F7F8FC;
+            --card-bg: #FFFFFF;
+            --text-primary: #111827;
+            --text-secondary: #4B5563;
+            --text-muted: #6B7280;
+            --primary: #4F46E5;
+            --primary-hover: #4338CA;
+            --primary-light: #EEF2FF;
+            --primary-lighter: #F5F7FF;
+            --border: #E5E7EB;
+            --shadow-soft: 0 8px 24px rgba(15, 23, 42, 0.06);
+            --shadow-hover: 0 14px 34px rgba(15, 23, 42, 0.10);
         }}
+        
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
         
         body {{
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             line-height: 1.6;
-            color: #333;
-            background: #f5f5f7;
+            color: var(--text-primary);
+            background: var(--page-bg);
             min-height: 100vh;
         }}
         
-        /* Header - Full width */
+        /* ===== Header ===== */
         .header {{
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px 40px;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.1);
+            background:
+                radial-gradient(circle at 15% 20%, rgba(99, 102, 241, 0.10), transparent 32%),
+                radial-gradient(circle at 85% 80%, rgba(139, 92, 246, 0.07), transparent 35%),
+                linear-gradient(135deg, #F5F7FF 0%, #EEF2FF 45%, #F8FAFC 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 40px;
         }}
         
         .header-content {{
@@ -54,45 +64,98 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             margin: 0 auto;
         }}
         
-        .header h1 {{
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 12px;
-            line-height: 1.3;
+        .header-brand {{
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
         }}
         
-        .header .meta {{
-            opacity: 0.9;
-            font-size: 0.9rem;
+        .header-logo {{
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            flex-shrink: 0;
+            object-fit: cover;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.20);
+        }}
+        
+        .header h1 {{
+            font-size: 1.9rem;
+            font-weight: 800;
+            letter-spacing: -0.6px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }}
+        
+        .header-meta {{
             display: flex;
             gap: 20px;
             flex-wrap: wrap;
             align-items: center;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            font-weight: 500;
+            margin-bottom: 14px;
         }}
         
-        .video-link a {{
+        .header-meta span {{
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            background: rgba(255,255,255,0.2);
-            color: white;
-            padding: 6px 14px;
-            border-radius: 20px;
+        }}
+        
+        .header-actions {{
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-top: 14px;
+        }}
+        
+        .btn-primary {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--primary);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
             text-decoration: none;
-            font-weight: 500;
-            font-size: 0.85rem;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255,255,255,0.3);
+            font-weight: 600;
+            font-size: 0.88rem;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.30);
         }}
         
-        .video-link a:hover {{
-            background: rgba(255,255,255,0.3);
+        .btn-primary:hover {{
+            background: var(--primary-hover);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(79, 70, 229, 0.40);
         }}
         
-        .summary-date {{
-            font-size: 0.85rem;
-            opacity: 0.8;
-            font-style: italic;
+        .btn-secondary {{
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--card-bg);
+            color: #334155;
+            padding: 10px 18px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            border: 1px solid var(--border);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }}
+        
+        .btn-secondary:hover {{
+            background: var(--primary-light);
+            border-color: #C7D2FE;
+            color: var(--primary-hover);
         }}
         
         .tags {{
@@ -103,70 +166,80 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
         
         .tag {{
-            background: rgba(255,255,255,0.25);
-            color: white;
+            background: var(--primary-light);
+            color: var(--primary);
             padding: 4px 12px;
-            border-radius: 15px;
-            font-size: 0.75rem;
-            font-weight: 500;
+            border-radius: 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
         }}
         
-        /* Main layout with sidebar */
+        /* ===== Layout ===== */
         .main-layout {{
             display: flex;
             max-width: 1400px;
             margin: 0 auto;
-            min-height: calc(100vh - 120px);
+            min-height: calc(100vh - 200px);
+            gap: 28px;
+            padding: 32px 40px 60px;
         }}
         
-        /* Sidebar - Fixed on left */
+        /* ===== Sidebar ===== */
         .sidebar {{
             width: 300px;
-            background: white;
-            border-right: 1px solid #e0e0e0;
+            flex-shrink: 0;
+        }}
+        
+        .sidebar-card {{
+            background: var(--card-bg);
+            border-radius: 18px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: var(--shadow-soft);
+            overflow: hidden;
             position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto;
-            padding: 20px 0;
-        }}
-        
-        .sidebar-header {{
-            padding: 0 20px 15px;
-            border-bottom: 1px solid #e0e0e0;
-            margin-bottom: 15px;
-        }}
-        
-        .sidebar-title {{
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #666;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            top: 24px;
+            max-height: calc(100vh - 48px);
             display: flex;
-            align-items: center;
-            gap: 8px;
+            flex-direction: column;
         }}
         
         .back-link {{
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            color: #667eea;
+            color: var(--text-secondary);
             text-decoration: none;
             font-size: 0.85rem;
-            font-weight: 500;
-            margin-bottom: 12px;
-            padding: 0 20px;
+            font-weight: 600;
+            padding: 16px 20px 14px;
+            border-bottom: 1px solid var(--border);
+            transition: all 0.2s ease;
         }}
         
         .back-link:hover {{
-            color: #764ba2;
+            color: var(--primary);
+            background: var(--primary-lighter);
+        }}
+        
+        .sidebar-header {{
+            padding: 14px 20px 10px;
+        }}
+        
+        .sidebar-title {{
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }}
         
         .toc-list {{
             list-style: none;
-            padding: 0;
+            padding: 0 12px 14px;
+            overflow-y: auto;
         }}
         
         .toc-item {{
@@ -177,40 +250,43 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             display: flex;
             align-items: flex-start;
             gap: 10px;
-            padding: 10px 20px;
-            color: #555;
+            padding: 10px 12px;
+            color: var(--text-secondary);
             text-decoration: none;
-            font-size: 0.9rem;
-            transition: all 0.2s ease;
+            font-size: 0.87rem;
+            transition: all 0.15s ease;
+            border-radius: 10px;
             border-left: 3px solid transparent;
+            margin-bottom: 2px;
         }}
         
         .toc-link:hover {{
-            background: #f8f9fa;
-            color: #667eea;
+            background: var(--primary-lighter);
+            color: var(--text-primary);
         }}
         
         .toc-link.active {{
-            background: linear-gradient(90deg, #667eea15 0%, #764ba210 100%);
-            color: #667eea;
-            border-left-color: #667eea;
-            font-weight: 500;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-left-color: var(--primary);
+            font-weight: 600;
         }}
         
         .toc-time {{
-            background: #e9ecef;
-            color: #667eea;
+            background: #f2f2f7;
+            color: var(--text-muted);
             padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.74rem;
             font-family: 'SF Mono', Monaco, monospace;
             white-space: nowrap;
             flex-shrink: 0;
+            font-weight: 600;
         }}
         
         .toc-link.active .toc-time {{
-            background: #667eea;
-            color: white;
+            background: var(--primary);
+            color: #fff;
         }}
         
         .toc-text {{
@@ -219,91 +295,119 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             padding-top: 2px;
         }}
         
-        /* Main content area */
+        /* ===== Content ===== */
         .content-wrapper {{
             flex: 1;
-            padding: 30px 40px;
+            min-width: 0;
             max-width: 900px;
         }}
         
         .content {{
-            background: white;
-            border-radius: 16px;
-            padding: 30px;
-            box-shadow: 0 2px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }}
         
-        /* Themes Section */
+        /* ===== Themes Card ===== */
         .themes-section {{
-            background: linear-gradient(135deg, #f8f9fa 0%, #fff 100%);
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 30px;
-            border: 2px solid #667eea30;
+            background: var(--card-bg);
+            border-radius: 18px;
+            padding: 28px;
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            box-shadow: var(--shadow-soft);
         }}
         
         .themes-title {{
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #667eea;
-            margin-bottom: 15px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
         }}
         
         .theme-item {{
-            padding: 10px 0;
+            padding: 18px 0;
+            border-bottom: 1px solid var(--border);
+            border-left: 3px solid var(--primary);
             padding-left: 20px;
-            border-left: 3px solid #667eea40;
-            margin-bottom: 10px;
+            margin-left: 0;
+        }}
+        
+        .theme-item:last-child {{
+            border-bottom: none;
+            padding-bottom: 0;
+        }}
+        
+        .theme-item:first-child {{
+            padding-top: 0;
         }}
         
         .theme-name {{
-            font-weight: 600;
-            color: #333;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1rem;
+            line-height: 1.4;
         }}
         
         .theme-desc {{
-            color: #666;
+            color: var(--text-secondary);
             font-size: 0.95rem;
-            margin-top: 4px;
+            margin-top: 6px;
+            line-height: 1.65;
         }}
         
-        /* Sections */
+        /* ===== Section Accordion Cards ===== */
         .section {{
-            margin-bottom: 30px;
-            border-radius: 12px;
+            background: var(--card-bg);
+            border-radius: 18px;
             overflow: hidden;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-            border: 1px solid #e9ecef;
-            scroll-margin-top: 140px;
+            box-shadow: var(--shadow-soft);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            scroll-margin-top: 180px;
+            transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        }}
+        
+        .section:hover {{
+            box-shadow: var(--shadow-hover);
+            border-color: #C7D2FE;
         }}
         
         .section-header {{
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            padding: 20px 25px;
+            padding: 20px 24px;
             cursor: pointer;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 14px;
             transition: all 0.2s ease;
+            background: var(--card-bg);
+            border-bottom: 1px solid transparent;
         }}
         
         .section-header:hover {{
-            background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+            background: var(--primary-lighter);
         }}
         
         .section-header.active {{
-            background: linear-gradient(135deg, #667eea20 0%, #764ba220 100%);
+            background: var(--primary-light);
+            border-bottom-color: #C7D2FE;
         }}
         
         .section-toggle {{
-            font-size: 1.1rem;
-            color: #667eea;
-            transition: transform 0.3s ease;
-            width: 24px;
+            font-size: 0.85rem;
+            width: 26px;
+            height: 26px;
             text-align: center;
+            line-height: 26px;
+            flex-shrink: 0;
+            background: var(--primary-light);
+            border-radius: 8px;
+            color: var(--primary);
+            font-weight: 700;
+            transition: transform 0.3s ease;
         }}
         
         .section-header.active .section-toggle {{
@@ -312,29 +416,31 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         
         .section-title-group {{
             flex: 1;
+            min-width: 0;
         }}
         
         .section-time {{
-            background: #667eea;
-            color: white;
+            background: var(--primary-light);
+            color: var(--primary);
             padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
             font-family: 'SF Mono', Monaco, monospace;
         }}
         
         .section-title {{
-            font-size: 1.15rem;
-            font-weight: 600;
-            color: #333;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
             margin-top: 8px;
+            line-height: 1.35;
         }}
         
         .section-content {{
             display: none;
-            padding: 25px;
-            background: white;
+            padding: 28px;
+            background: var(--card-bg);
         }}
         
         .section-content.active {{
@@ -342,24 +448,24 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
         
         .section-summary {{
-            color: #555;
+            color: var(--text-secondary);
             font-size: 1rem;
-            line-height: 1.7;
-            margin-bottom: 20px;
-            padding: 15px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            border-left: 3px solid #667eea;
+            line-height: 1.75;
+            margin-bottom: 24px;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
         }}
         
-        /* Key Points */
+        /* ===== Key Points ===== */
         .key-points-title {{
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #666;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }}
         
         .key-points {{
@@ -369,8 +475,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         .key-point {{
             display: flex;
             align-items: flex-start;
-            padding: 12px 0;
-            border-bottom: 1px solid #f0f0f0;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
         }}
         
         .key-point:last-child {{
@@ -378,122 +484,117 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         }}
         
         .key-point-time {{
-            background: #e9ecef;
-            color: #667eea;
+            background: var(--primary-light);
+            color: var(--primary);
             padding: 3px 10px;
-            border-radius: 15px;
-            font-size: 0.8rem;
-            font-weight: 600;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            font-weight: 700;
             font-family: 'SF Mono', Monaco, monospace;
             white-space: nowrap;
-            margin-right: 15px;
+            margin-right: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
             flex-shrink: 0;
         }}
         
         .key-point-time:hover {{
-            background: #667eea;
-            color: white;
+            background: var(--primary);
+            color: #fff;
         }}
         
         .key-point-text {{
             flex: 1;
             padding-top: 2px;
-            line-height: 1.6;
+            line-height: 1.65;
+            color: var(--text-primary);
         }}
         
-        /* Copy Button */
+        /* ===== Copy Button ===== */
         .copy-btn {{
             position: fixed;
             bottom: 30px;
             right: 30px;
-            background: #667eea;
+            background: var(--primary);
             color: white;
             border: none;
-            padding: 15px 25px;
-            border-radius: 50px;
-            font-size: 1rem;
+            padding: 14px 24px;
+            border-radius: 14px;
+            font-size: 0.95rem;
             font-weight: 600;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.35);
             transition: all 0.3s ease;
             z-index: 100;
         }}
         
         .copy-btn:hover {{
-            background: #764ba2;
+            background: var(--primary-hover);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+            box-shadow: 0 8px 24px rgba(79, 70, 229, 0.45);
         }}
         
         .copy-btn.copied {{
-            background: #28a745;
+            background: #10B981;
         }}
         
-        /* Mobile responsive */
+        /* ===== Toast ===== */
+        .toast {{
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #1a1a1a;
+            color: #fff;
+            padding: 10px 22px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s ease;
+            z-index: 2000;
+            pointer-events: none;
+        }}
+        
+        .toast.show {{
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }}
+        
+        /* ===== Mobile ===== */
         @media (max-width: 1024px) {{
-            .sidebar {{
-                width: 260px;
-            }}
-            
-            .content-wrapper {{
-                padding: 20px;
-            }}
+            .sidebar {{ width: 260px; }}
+            .main-layout {{ padding: 24px; gap: 20px; }}
         }}
         
         @media (max-width: 768px) {{
-            .header {{
-                padding: 20px;
-            }}
-            
-            .header h1 {{
-                font-size: 1.2rem;
-            }}
-            
+            .header {{ padding: 24px 20px; }}
+            .header h1 {{ font-size: 1.4rem; }}
+            .header-meta {{ gap: 12px; }}
             .main-layout {{
                 flex-direction: column;
+                padding: 16px;
+                gap: 16px;
             }}
-            
             .sidebar {{
                 width: 100%;
-                height: auto;
                 position: relative;
-                border-right: none;
-                border-bottom: 1px solid #e0e0e0;
-                max-height: 300px;
             }}
-            
-            .content-wrapper {{
-                padding: 15px;
+            .sidebar-card {{
+                position: relative;
+                top: 0;
+                max-height: 320px;
             }}
-            
-            .content {{
-                padding: 20px;
-            }}
-            
-            .section-header {{
-                padding: 15px 20px;
-            }}
-            
-            .section-title {{
-                font-size: 1rem;
-            }}
-            
-            .section-content {{
-                padding: 20px;
-            }}
-            
-            .key-point {{
-                flex-direction: column;
-            }}
-            
+            .content-wrapper {{ padding: 0; }}
+            .themes-section,
+            .section-content {{ padding: 20px; }}
+            .section-header {{ padding: 16px 20px; }}
+            .key-point {{ flex-direction: column; }}
             .key-point-time {{
                 margin-bottom: 8px;
                 margin-right: 0;
                 align-self: flex-start;
             }}
-            
             .copy-btn {{
                 bottom: 20px;
                 right: 20px;
@@ -506,27 +607,35 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <body>
     <div class="header">
         <div class="header-content">
-            <h1>🎬 {title}</h1>
-            <div class="meta">
-                <span>📋 {total_key_points} Key Points</span>
-                <span>📑 {total_sections} Sections</span>
-                <span>⏱️ {duration}</span>
-                {video_link_html}
+            <div class="header-brand">
+                <img src="../logo.png" alt="" class="header-logo">
+                <h1>{title}</h1>
             </div>
-            {summary_date_html}
+            <div class="header-meta">
+                <span>📋 {total_key_points} key points</span>
+                <span>📑 {total_sections} sections</span>
+                <span>⏱️ {duration}</span>
+                {summary_date_html}
+            </div>
             {tags_html}
+            <div class="header-actions">
+                {video_link_html}
+                {share_html}
+            </div>
         </div>
     </div>
     
     <div class="main-layout">
         <nav class="sidebar">
-            <a href="../index.html" class="back-link">← Back to all videos</a>
-            <div class="sidebar-header">
-                <div class="sidebar-title">📚 Contents</div>
+            <div class="sidebar-card">
+                <a href="../index.html" class="back-link">← Back to all videos</a>
+                <div class="sidebar-header">
+                    <div class="sidebar-title">📚 Contents</div>
+                </div>
+                <ul class="toc-list">
+                    {toc_items}
+                </ul>
             </div>
-            <ul class="toc-list">
-                {toc_items}
-            </ul>
         </nav>
         
         <div class="content-wrapper">
@@ -539,6 +648,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     </div>
     
     <button class="copy-btn" onclick="copySummary()">📋 Copy Summary</button>
+    <div class="toast" id="toast">Link copied!</div>
     
     <script>
         // Toggle sections
@@ -623,7 +733,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
             observer.observe(section);
         }});
         
-        // Copy to clipboard
+        // Copy full summary to clipboard
         function copySummary() {{
             const title = document.querySelector('h1').textContent;
             let text = `# ${{title}}\\n\\n`;
@@ -658,6 +768,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
                     btn.textContent = '📋 Copy Summary';
                     btn.classList.remove('copied');
                 }}, 2000);
+            }});
+        }}
+        
+        // Copy video URL to clipboard
+        function copyVideoUrl(url) {{
+            if (!url) return;
+            navigator.clipboard.writeText(url).then(() => {{
+                const toast = document.getElementById('toast');
+                toast.textContent = 'Video link copied!';
+                toast.classList.add('show');
+                setTimeout(() => toast.classList.remove('show'), 1800);
             }});
         }}
     </script>
@@ -750,13 +871,15 @@ def generate_html(data: dict) -> str:
     
     # Generate video link HTML if available
     if video_url:
-        video_link_html = f'''<span class="video-link"><a href="{video_url}" target="_blank" rel="noopener">🎥 Watch on YouTube</a></span>'''
+        video_link_html = f'''<a class="btn-primary" href="{video_url}" target="_blank" rel="noopener">🎥 Watch on YouTube</a>'''
+        share_html = f'''<button class="btn-secondary" onclick="copyVideoUrl('{video_url}')">↗ Share</button>'''
     else:
         video_link_html = ""
+        share_html = ""
     
     # Generate summary date HTML if available
     if summary_date:
-        summary_date_html = f'<div class="summary-date">📝 Summary created: {summary_date}</div>'
+        summary_date_html = f'<span>📝 {summary_date}</span>'
     else:
         summary_date_html = ""
     
@@ -772,6 +895,7 @@ def generate_html(data: dict) -> str:
         total_sections=total_sections,
         duration=duration,
         video_link_html=video_link_html,
+        share_html=share_html,
         summary_date_html=summary_date_html,
         tags_html=tags_html,
         themes_html=themes_html,
