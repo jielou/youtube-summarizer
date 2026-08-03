@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.4.0] - 2026-08-03
+
+### Changed
+
+**Breaking: videos are now organized by year/month**
+- Video directories moved from `videos/<slug>/` to `videos/YYYY/MM/<slug>/`, based on the `summary_date` field in `summary.json`
+- `process_video.py`: new videos are created under `videos/YYYY/MM/` using the current date; index generation now scans recursively (`rglob`) so nested video directories are discovered, and card links are relative to the `videos/` root (e.g. `2026/08/<slug>/summary.html`)
+- `generate_html.py`: locates the `videos/` root by walking up from the output path instead of assuming a fixed depth; the "Back to all videos" link is now `../../../index.html` to match the deeper layout
+- `SKILL.md`, `reference.md`, `README.md`: all example paths and directory trees updated to the `videos/YYYY/MM/<slug>/` layout
+- `youtube-summarizer.skill`: repackaged with the updated scripts and docs
+
 ## [0.3.0] - 2026-04-24
 
 ### Added

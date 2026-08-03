@@ -7,7 +7,7 @@ Usage:
     python3 process_video.py "https://youtube.com/watch?v=VIDEO_ID"
 
 This will:
-    1. Create videos/<slug>/ directory based on video title
+    1. Create videos/YYYY/MM/<slug>/ directory based on video title and current date
     2. Fetch transcript and metadata (using YouTube's official API)
     3. Save transcript.md
     4. Create a summary template for you to fill in
@@ -111,66 +111,64 @@ def generate_index_html(videos_dir: Path) -> str:
             return f"{m} min"
         return dur
     
-    # Find all video directories
+    # Find all video directories (organized as videos/YYYY/MM/<slug>/)
     video_dirs = []
     all_tags = set()
-    for item in videos_dir.iterdir():
-        if item.is_dir():
-            summary_json_path = item / 'summary.json'
-            if summary_json_path.exists():
-                try:
-                    with open(summary_json_path, 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                    
-                    themes = data.get('themes', [])
-                    themes_text = '\n'.join([f"• {t.get('name', '')}: {t.get('description', '')}" for t in themes[:3]])
-                    
-                    preview = ""
-                    if themes and themes[0].get('description'):
-                        preview = themes[0]['description']
-                    elif data.get('sections') and data['sections'][0].get('summary'):
-                        preview = data['sections'][0]['summary']
-                    if len(preview) > 150:
-                        preview = preview[:147] + '...'
-                    preview = html_module.escape(preview)
-                    
-                    sections = data.get('sections', [])
-                    total_kp = sum(len(s.get('key_points', [])) for s in sections)
-                    total_secs = len(sections)
-                    dur = data.get('duration', '')
-                    
-                    meta_parts = []
-                    if total_kp:
-                        meta_parts.append(f"📋&nbsp;{total_kp}&nbsp;key&nbsp;points")
-                    if total_secs:
-                        meta_parts.append(f"⏱&nbsp;{total_secs}&nbsp;timestamps")
-                    fd = fmt_duration(dur)
-                    if fd:
-                        meta_parts.append(f"📖&nbsp;{fd}")
-                    meta_line = "&nbsp;·&nbsp;".join(meta_parts) if meta_parts else ""
-                    
-                    summary_html_path = item / 'summary.html'
-                    has_summary_html = summary_html_path.exists()
-                    
-                    tags = data.get('tags', [])
-                    all_tags.update(tags)
-                    
-                    video_dirs.append({
-                        'slug': item.name,
-                        'title': data.get('title', item.name),
-                        'summary_date': data.get('summary_date', ''),
-                        'video_url': data.get('video_url', ''),
-                        'video_id': data.get('video_id', ''),
-                        'duration': dur,
-                        'tags': tags,
-                        'themes_text': themes_text,
-                        'preview': preview,
-                        'meta_line': meta_line,
-                        'path': item.name + '/summary.html',
-                        'has_summary_html': has_summary_html,
-                    })
-                except:
-                    pass
+    for summary_json_path in sorted(videos_dir.rglob('summary.json')):
+        item = summary_json_path.parent
+        try:
+            with open(summary_json_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            
+            themes = data.get('themes', [])
+            themes_text = '\n'.join([f"• {t.get('name', '')}: {t.get('description', '')}" for t in themes[:3]])
+            
+            preview = ""
+            if themes and themes[0].get('description'):
+                preview = themes[0]['description']
+            elif data.get('sections') and data['sections'][0].get('summary'):
+                preview = data['sections'][0]['summary']
+            if len(preview) > 150:
+                preview = preview[:147] + '...'
+            preview = html_module.escape(preview)
+            
+            sections = data.get('sections', [])
+            total_kp = sum(len(s.get('key_points', [])) for s in sections)
+            total_secs = len(sections)
+            dur = data.get('duration', '')
+            
+            meta_parts = []
+            if total_kp:
+                meta_parts.append(f"📋&nbsp;{total_kp}&nbsp;key&nbsp;points")
+            if total_secs:
+                meta_parts.append(f"⏱&nbsp;{total_secs}&nbsp;timestamps")
+            fd = fmt_duration(dur)
+            if fd:
+                meta_parts.append(f"📖&nbsp;{fd}")
+            meta_line = "&nbsp;·&nbsp;".join(meta_parts) if meta_parts else ""
+            
+            summary_html_path = item / 'summary.html'
+            has_summary_html = summary_html_path.exists()
+            
+            tags = data.get('tags', [])
+            all_tags.update(tags)
+            
+            video_dirs.append({
+                'slug': item.name,
+                'title': data.get('title', item.name),
+                'summary_date': data.get('summary_date', ''),
+                'video_url': data.get('video_url', ''),
+                'video_id': data.get('video_id', ''),
+                'duration': dur,
+                'tags': tags,
+                'themes_text': themes_text,
+                'preview': preview,
+                'meta_line': meta_line,
+                'path': item.relative_to(videos_dir).as_posix() + '/summary.html',
+                'has_summary_html': has_summary_html,
+            })
+        except:
+            pass
     
     video_dirs.sort(key=lambda x: (x['summary_date'] or '0000-00-00', x['slug']), reverse=True)
     sorted_tags = sorted(all_tags)
@@ -1116,14 +1114,18 @@ def process_video(url: str, videos_base_dir: str = None, language: str = None):
     
     # Create slug for directory name
     slug = slugify_title(title)
-    
+
+    # Organize into videos/YYYY/MM/ based on today's date (matches summary_date)
+    now = datetime.now()
+    date_dir = videos_dir / now.strftime('%Y') / now.strftime('%m')
+
     # Ensure unique directory name
-    video_dir = videos_dir / slug
+    video_dir = date_dir / slug
     counter = 1
     original_slug = slug
     while video_dir.exists():
         slug = f"{original_slug}-{counter}"
-        video_dir = videos_dir / slug
+        video_dir = date_dir / slug
         counter += 1
     
     print(f"\nCreating directory: {video_dir}")

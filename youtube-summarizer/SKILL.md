@@ -22,18 +22,18 @@ python3 -c "import yt_dlp" 2>/dev/null || pip install yt-dlp
 python3 youtube-summarizer/scripts/process_video.py "https://www.youtube.com/watch?v=VIDEO_ID"
 ```
 
-This creates `./videos/<slug>/` with `transcript.md`, `summary.json` template, and updates `videos/index.html`.
+This creates `./videos/YYYY/MM/<slug>/` (year/month from the current date) with `transcript.md`, `summary.json` template, and updates `videos/index.html`.
 
 ### Step 2: Read the Transcript
 
 ```bash
 # Read transcript to understand content
-./videos/<slug>/transcript.md
+./videos/YYYY/MM/<slug>/transcript.md
 ```
 
 ### Step 3: Fill in summary.json
 
-Edit `./videos/<slug>/summary.json`:
+Edit `./videos/YYYY/MM/<slug>/summary.json`:
 
 ```json
 {
@@ -71,7 +71,7 @@ Long videos are especially prone to timestamp drift. It's easy to front-load sec
 **Verify with the validation script (run BEFORE generating HTML):**
 ```bash
 python3 youtube-summarizer/scripts/verify_summary.py \
-  -i videos/<slug>/summary.json \
+  -i videos/YYYY/MM/<slug>/summary.json \
   -d HH:MM:SS
 ```
 
@@ -84,9 +84,9 @@ This catches:
 **Manual spot-check:** Sample the transcript at section boundaries:
 ```bash
 # Check ~3 points in the video: start, middle, end
-head -20 videos/<slug>/transcript.md
-sed -n '4500,4520p' videos/<slug>/transcript.md
-tail -20 videos/<slug>/transcript.md
+head -20 videos/YYYY/MM/<slug>/transcript.md
+sed -n '4500,4520p' videos/YYYY/MM/<slug>/transcript.md
+tail -20 videos/YYYY/MM/<slug>/transcript.md
 ```
 
 **Common pitfall:** Writing sections from memory/notes without checking the transcript. A section you think is at "00:20" might actually start at "00:35". Always verify key timestamps against the transcript.
@@ -97,8 +97,8 @@ tail -20 videos/<slug>/transcript.md
 
 ```bash
 python3 youtube-summarizer/scripts/generate_html.py \
-  --input videos/<slug>/summary.json \
-  --output videos/<slug>/summary.html
+  --input videos/YYYY/MM/<slug>/summary.json \
+  --output videos/YYYY/MM/<slug>/summary.html
 ```
 
 This also regenerates `videos/index.html` with the new design.
@@ -125,7 +125,7 @@ A polished SaaS-style grid gallery with indigo accents:
 - **Quick preview modal** — click any card for theme summary with full CTA
 - **Action buttons** — "Read summary" (filled), "▶ Watch" and "↗ Share" (outlined)
 
-### Summary Page (`videos/<slug>/summary.html`)
+### Summary Page (`videos/YYYY/MM/<slug>/summary.html`)
 
 Polished product detail page with the same purple-blue branding as the homepage:
 - **Branded header** with light lavender/blue radial gradient, strong title hierarchy, icon metadata row, indigo pill tags
@@ -141,10 +141,12 @@ Polished product detail page with the same purple-blue branding as the homepage:
 ```
 ./videos/
 ├── index.html                    # Auto-generated grid index
-├── <video-slug>/
-│   ├── transcript.md
-│   ├── summary.json
-│   └── summary.html              # Auto-generated full summary
+├── YYYY/
+│   └── MM/                       # Year/month from summary_date (e.g. 2026/08)
+│       └── <video-slug>/
+│           ├── transcript.md
+│           ├── summary.json
+│           └── summary.html      # Auto-generated full summary
 └── ...
 ```
 

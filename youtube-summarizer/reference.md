@@ -127,7 +127,7 @@ Before generating HTML, always run the verification script to catch timestamp is
 
 ```bash
 python3 youtube-summarizer/scripts/verify_summary.py \
-  -i videos/<slug>/summary.json \
+  -i videos/YYYY/MM/<slug>/summary.json \
   -d HH:MM:SS
 ```
 
@@ -164,8 +164,8 @@ python3 scripts/fetch_transcript.py "URL" --output path/to/transcript.md
 
 ```bash
 python3 youtube-summarizer/scripts/generate_html.py \
-  --input videos/<slug>/summary.json \
-  --output videos/<slug>/summary.html
+  --input videos/YYYY/MM/<slug>/summary.json \
+  --output videos/YYYY/MM/<slug>/summary.html
 ```
 
 Also regenerates `videos/index.html` automatically.

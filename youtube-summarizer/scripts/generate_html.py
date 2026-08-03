@@ -628,7 +628,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     <div class="main-layout">
         <nav class="sidebar">
             <div class="sidebar-card">
-                <a href="../index.html" class="back-link">← Back to all videos</a>
+                <a href="../../../index.html" class="back-link">← Back to all videos</a>
                 <div class="sidebar-header">
                     <div class="sidebar-title">📚 Contents</div>
                 </div>
@@ -946,9 +946,14 @@ def main():
     
     print(f"HTML summary generated: {output_path.absolute()}")
     
-    # Update index.html to reflect the new summary
-    videos_dir = output_path.parent.parent
-    if videos_dir.name == "videos":
+    # Update index.html to reflect the new summary.
+    # Walk up from the output file to find the videos/ root (layout: videos/YYYY/MM/<slug>/).
+    videos_dir = None
+    for parent in output_path.parents:
+        if parent.name == "videos":
+            videos_dir = parent
+            break
+    if videos_dir is not None:
         index_path = videos_dir / "index.html"
         index_html = generate_index_html(videos_dir)
         with open(index_path, "w", encoding="utf-8") as f:

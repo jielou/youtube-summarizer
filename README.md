@@ -7,7 +7,7 @@ Build Your Personal Video Summary Library
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> **Version 0.3** — Actively being improved
+> **Version 0.4.0** — Actively being improved
 
 A skill for creating structured, interactive summaries of YouTube videos with timestamps, key points, and cross-cutting themes.
 
@@ -155,7 +155,7 @@ Your personal video library — every summarized video in one searchable place:
 - **Quick preview modal** — click a card to see all themes and metadata before diving in
 - **Action buttons** — "Read Summary" (opens full page), "▶ Watch" (YouTube), "↗ Share" (copy link)
 
-### Summary Page (`videos/<slug>/summary.html`)
+### Summary Page (`videos/YYYY/MM/<slug>/summary.html`)
 
 A polished, focused reading experience for a single video:
 
@@ -184,12 +184,14 @@ workspace/
 └── videos/
     ├── index.html              # Searchable index of all summarized videos
     ├── logo.png                # Auto-copied from artifacts/ on each update
-    ├── video-1/
-    │   ├── transcript.md       # Full transcript
-    │   ├── summary.json        # Structured data
-    │   └── summary.html        # Interactive summary
-    └── video-2/
-        └── ...
+    └── YYYY/
+        └── MM/                 # Year/month from summary_date (e.g. 2026/08)
+            ├── video-1/
+            │   ├── transcript.md       # Full transcript
+            │   ├── summary.json        # Structured data
+            │   └── summary.html        # Interactive summary
+            └── video-2/
+                └── ...
 ```
 
 ## 🛠️ Technical Details
